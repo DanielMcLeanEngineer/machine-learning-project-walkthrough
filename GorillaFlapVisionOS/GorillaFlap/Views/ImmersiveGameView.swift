@@ -6,6 +6,7 @@ import RealityKit
 struct ImmersiveGameView: View {
     @EnvironmentObject private var engine: GameEngine
     @EnvironmentObject private var hands: HandMotionTracker
+    @EnvironmentObject private var feedback: FeedbackEngine
 
     var body: some View {
         RealityView { content, attachments in
@@ -26,9 +27,11 @@ struct ImmersiveGameView: View {
             }
         }
         .task {
+            feedback.prepare()
             await hands.start()
         }
         .onDisappear {
+            feedback.endRun()
             hands.stop()
         }
     }

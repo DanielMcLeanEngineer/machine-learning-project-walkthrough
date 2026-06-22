@@ -45,6 +45,11 @@ struct MainMenuView: View {
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
             }
+
+            Text("Spatial sound is built in. Haptics play through a paired game controller — Vision Pro has no haptics of its own.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

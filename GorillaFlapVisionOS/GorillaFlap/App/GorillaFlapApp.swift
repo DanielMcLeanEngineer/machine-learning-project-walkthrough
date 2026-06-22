@@ -4,12 +4,15 @@ import SwiftUI
 struct GorillaFlapApp: App {
 
     @StateObject private var hands: HandMotionTracker
+    @StateObject private var feedback: FeedbackEngine
     @StateObject private var engine: GameEngine
 
     init() {
         let hands = HandMotionTracker()
+        let feedback = FeedbackEngine()
         _hands = StateObject(wrappedValue: hands)
-        _engine = StateObject(wrappedValue: GameEngine(hands: hands))
+        _feedback = StateObject(wrappedValue: feedback)
+        _engine = StateObject(wrappedValue: GameEngine(hands: hands, feedback: feedback))
     }
 
     var body: some Scene {
@@ -17,6 +20,7 @@ struct GorillaFlapApp: App {
             MainMenuView()
                 .environmentObject(engine)
                 .environmentObject(hands)
+                .environmentObject(feedback)
         }
         .windowResizability(.contentSize)
         .defaultSize(width: 460, height: 620)
@@ -25,6 +29,7 @@ struct GorillaFlapApp: App {
             ImmersiveGameView()
                 .environmentObject(engine)
                 .environmentObject(hands)
+                .environmentObject(feedback)
         }
         .immersionStyle(selection: .constant(.full), in: .full)
     }

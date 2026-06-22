@@ -37,6 +37,25 @@ hitch can't tunnel you through a wall), capped vertical speed and gentle gravity
 faint ground grid for an optical-flow reference, and no artificial yaw/roll — you still
 freely turn your real head.
 
+## Sound & haptic feedback
+
+All "feel" is routed through one facade, `FeedbackEngine`, which the game calls with
+semantic events (`flap`, `score`, `crash`, `startRun`, `endRun`).
+
+**Sound** is fully procedural — synthesized into PCM buffers at launch and played via a
+small `AVAudioEngine` graph, so there are still **no audio asset files**:
+- *flap* — an airy upward whoosh that gets louder/brighter the harder you swing,
+- *score* — a bright two-note (perfect-fifth) chime,
+- *crash* — a low thud with a noise burst,
+- *wind* — a soft, seamlessly looping ambience that runs only during a run.
+
+**Haptics** — important platform note: **Apple Vision Pro has no built-in haptic
+actuator the wearer can feel.** So haptics are implemented as a correct best-effort
+path via `CoreHaptics` + `GameController`: if a haptic-capable controller is paired,
+flaps/scores fire transient taps and crashes fire a short rumble; with no such
+controller (the normal hand-tracking case) it's a clean no-op. The menu states this so
+expectations are clear.
+
 ## Assets
 
 Deliberately minimal — **everything is a RealityKit primitive** (boxes) with a tiny
@@ -54,6 +73,7 @@ GorillaFlap/
     GameEngine.swift         // simulation + per-frame step, scoring, game-over
     ObstacleCourse.swift     // procedural pool of recyclable gap "windows"
     HandMotionTracker.swift  // ARKit hand tracking -> flap impulse + forward thrust
+    FeedbackEngine.swift     // procedural spatial sound + best-effort controller haptics
     AssetFactory.swift       // simple primitive visuals
   Views/
     MainMenuView.swift       // 2D start/restart + how-to

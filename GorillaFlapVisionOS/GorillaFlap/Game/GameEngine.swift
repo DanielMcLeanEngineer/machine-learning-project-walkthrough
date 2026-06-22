@@ -26,6 +26,7 @@ final class GameEngine: ObservableObject {
 
     private var course: ObstacleCourse!
     private let hands: HandMotionTracker
+    private let feedback: FeedbackEngine
 
     // Player state in course coordinates.
     private var verticalVelocity: Float = 0
@@ -33,8 +34,9 @@ final class GameEngine: ObservableObject {
 
     private var updateSubscription: EventSubscription?
 
-    init(hands: HandMotionTracker) {
+    init(hands: HandMotionTracker, feedback: FeedbackEngine) {
         self.hands = hands
+        self.feedback = feedback
     }
 
     func setup(content: RealityViewContent) {
@@ -57,11 +59,13 @@ final class GameEngine: ObservableObject {
         course.refreshNextTarget(playerDistance: forwardDistance)
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? GameConfig.startAltitude
         applyWorldTransform()
+        feedback.startRun()
         phase = .playing
     }
 
     func endGame() {
         bestScore = max(bestScore, score)
+        feedback.endRun()
         phase = .gameOver
     }
 
@@ -73,7 +77,12 @@ final class GameEngine: ObservableObject {
 
         // Vertical: gravity + banked flap impulses, integrated and clamped.
         verticalVelocity += GameConfig.gravity * dt
-        verticalVelocity += hands.consumeFlapImpulse()
+        let flapImpulse = hands.consumeFlapImpulse()
+        if flapImpulse > 0 {
+            verticalVelocity += flapImpulse
+            let maxImpulse = GameConfig.flapImpulseBase * GameConfig.flapImpulseMaxScale
+            feedback.flap(intensity: flapImpulse / maxImpulse)
+        }
         verticalVelocity = max(-GameConfig.maxVerticalSpeed, min(GameConfig.maxVerticalSpeed, verticalVelocity))
         altitude += verticalVelocity * dt
 
@@ -95,9 +104,11 @@ final class GameEngine: ObservableObject {
         switch course.evaluate(previousDistance: previousDistance, currentDistance: forwardDistance, altitude: altitude) {
         case .scored:
             score += 1
+            feedback.score()
             course.recycle(playerDistance: forwardDistance)
             course.refreshNextTarget(playerDistance: forwardDistance)
         case .crashed:
+            feedback.crash()
             applyWorldTransform()
             endGame()
             return
