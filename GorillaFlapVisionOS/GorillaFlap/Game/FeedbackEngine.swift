@@ -32,6 +32,14 @@ final class FeedbackEngine: ObservableObject {
         sound.stopWind()
     }
 
+    func pauseRun() {
+        sound.stopWind()
+    }
+
+    func resumeRun() {
+        sound.startWind()
+    }
+
     /// `intensity` is 0...1 — how hard the swing was.
     func flap(intensity: Float) {
         let i = max(0, min(1, intensity))

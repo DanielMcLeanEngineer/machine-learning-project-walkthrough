@@ -13,7 +13,7 @@ import simd
 @MainActor
 final class GameEngine: ObservableObject {
 
-    enum Phase { case ready, playing, gameOver }
+    enum Phase { case ready, playing, paused, gameOver }
 
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var score = 0
@@ -72,6 +72,19 @@ final class GameEngine: ObservableObject {
         applyWorldTransform()
         feedback.startRun()
         phase = .playing
+    }
+
+    func togglePause() {
+        switch phase {
+        case .playing:
+            phase = .paused
+            feedback.pauseRun()
+        case .paused:
+            phase = .playing
+            feedback.resumeRun()
+        default:
+            break
+        }
     }
 
     func endGame() {

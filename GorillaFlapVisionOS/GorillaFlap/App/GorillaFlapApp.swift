@@ -38,6 +38,7 @@ struct GorillaFlapApp: App {
                 .environmentObject(engine)
                 .environmentObject(hands)
                 .environmentObject(feedback)
+                .environmentObject(settings)
         }
         .immersionStyle(selection: .constant(.full), in: .full)
     }

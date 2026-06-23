@@ -1,9 +1,10 @@
 import SwiftUI
 
 /// Head-locked HUD: score, a vertical height gauge that compares your altitude to the
-/// next gap, and the game-over restart prompt.
+/// next gap, and in-headset controls so you never need the menu window mid-game.
 struct GameHUDView: View {
     @EnvironmentObject private var engine: GameEngine
+    @EnvironmentObject private var settings: GameSettings
 
     var body: some View {
         VStack(spacing: 14) {
@@ -19,13 +20,65 @@ struct GameHUDView: View {
 
             heightGauge
 
-            if engine.phase == .gameOver {
-                gameOverCard
-            }
+            controls
         }
         .padding(20)
         .frame(width: 260)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
+    }
+
+    @ViewBuilder
+    private var controls: some View {
+        switch engine.phase {
+        case .playing:
+            Button { engine.togglePause() } label: {
+                Label("Pause", systemImage: "pause.fill").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            sensitivityStepper
+
+        case .paused:
+            Text("PAUSED").font(.headline).foregroundStyle(.secondary)
+            Button { engine.togglePause() } label: {
+                Label("Resume", systemImage: "play.fill").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            Button { engine.startGame() } label: {
+                Label("Restart", systemImage: "arrow.counterclockwise").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            sensitivityStepper
+
+        case .gameOver:
+            gameOverCard
+            Button { engine.startGame() } label: {
+                Label("Play Again", systemImage: "arrow.counterclockwise").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            sensitivityStepper
+
+        case .ready:
+            EmptyView()
+        }
+    }
+
+    /// Quick swing-sensitivity nudge without leaving the immersive space.
+    private var sensitivityStepper: some View {
+        HStack {
+            Text("Swing").font(.caption2).foregroundStyle(.secondary)
+            Spacer()
+            Button { adjustSensitivity(-0.1) } label: { Image(systemName: "minus") }
+                .buttonStyle(.borderless)
+            Text("\(Int(settings.swingSensitivity * 100))%")
+                .font(.caption2.monospacedDigit())
+                .frame(width: 42)
+            Button { adjustSensitivity(0.1) } label: { Image(systemName: "plus") }
+                .buttonStyle(.borderless)
+        }
+    }
+
+    private func adjustSensitivity(_ delta: Double) {
+        settings.swingSensitivity = min(1, max(0, settings.swingSensitivity + delta))
     }
 
     /// A simple bar: your current altitude marker vs. the amber target band.

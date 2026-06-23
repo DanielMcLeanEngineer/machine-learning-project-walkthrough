@@ -7,6 +7,7 @@ struct ImmersiveGameView: View {
     @EnvironmentObject private var engine: GameEngine
     @EnvironmentObject private var hands: HandMotionTracker
     @EnvironmentObject private var feedback: FeedbackEngine
+    @EnvironmentObject private var settings: GameSettings
 
     var body: some View {
         RealityView { content, attachments in
@@ -23,7 +24,9 @@ struct ImmersiveGameView: View {
             content.add(head)
         } attachments: {
             Attachment(id: "hud") {
-                GameHUDView().environmentObject(engine)
+                GameHUDView()
+                    .environmentObject(engine)
+                    .environmentObject(settings)
             }
         }
         .task {
