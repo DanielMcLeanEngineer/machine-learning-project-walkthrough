@@ -18,9 +18,15 @@ final class GameEngine: ObservableObject {
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var score = 0
     @Published private(set) var bestScore = 0
+    /// Meters travelled this run — a secondary stat shown on the HUD / game-over card.
+    @Published private(set) var distance: Float = 0
     /// Current altitude and the next target gap altitude, for the HUD's height gauge.
     @Published private(set) var altitude: Float = GameConfig.startAltitude
     @Published private(set) var targetAltitude: Float = GameConfig.startAltitude
+    /// Half-height of the next gap, so the HUD band reflects the live difficulty.
+    @Published private(set) var targetGapHalf: Float = GameConfig.gapHalfHeight
+
+    private let bestScoreKey = "gf.bestScore"
 
     let worldRoot = Entity()
 
@@ -39,6 +45,7 @@ final class GameEngine: ObservableObject {
         self.hands = hands
         self.feedback = feedback
         self.settings = settings
+        self.bestScore = UserDefaults.standard.integer(forKey: bestScoreKey)
     }
 
     func setup(content: RealityViewContent) {
@@ -54,19 +61,25 @@ final class GameEngine: ObservableObject {
 
     func startGame() {
         score = 0
+        distance = 0
         verticalVelocity = 0
         forwardDistance = 0
         altitude = GameConfig.startAltitude
         course.reset()
         course.refreshNextTarget(playerDistance: forwardDistance)
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? GameConfig.startAltitude
+        targetGapHalf = course.nextGapHalf(playerDistance: forwardDistance) ?? GameConfig.gapHalfHeight
         applyWorldTransform()
         feedback.startRun()
         phase = .playing
     }
 
     func endGame() {
-        bestScore = max(bestScore, score)
+        if score > bestScore {
+            bestScore = score
+            UserDefaults.standard.set(bestScore, forKey: bestScoreKey)
+            Task { await Leaderboard.shared.submit(score: bestScore) }
+        }
         feedback.endRun()
         phase = .gameOver
     }
@@ -96,18 +109,28 @@ final class GameEngine: ObservableObject {
             verticalVelocity = min(verticalVelocity, 0)
         }
 
-        // Forward: base drift + swing-energy boost, which bleeds off over time.
-        let forwardSpeed = GameConfig.baseForwardSpeed + hands.swingEnergy
+        // Forward: score-scaled base drift + swing-energy boost, which bleeds off.
+        let forwardSpeed = GameConfig.forwardBaseSpeed(forScore: score) + hands.swingEnergy
         hands.decaySwingEnergy(deltaTime: dt)
         let previousDistance = forwardDistance
         forwardDistance += forwardSpeed * dt
+        distance = forwardDistance
+
+        course.animate(deltaTime: dt)
+
+        // Bonus coins grabbed mid-gap.
+        let coins = course.collectCoins(previousDistance: previousDistance, currentDistance: forwardDistance, altitude: altitude)
+        if coins > 0 {
+            score += coins * GameConfig.coinValue
+            feedback.coin()
+        }
 
         // Collisions / scoring against any obstacle plane crossed this frame.
         switch course.evaluate(previousDistance: previousDistance, currentDistance: forwardDistance, altitude: altitude) {
         case .scored:
             score += 1
             feedback.score()
-            course.recycle(playerDistance: forwardDistance)
+            course.recycle(playerDistance: forwardDistance, score: score)
             course.refreshNextTarget(playerDistance: forwardDistance)
         case .crashed:
             feedback.crash()
@@ -118,8 +141,9 @@ final class GameEngine: ObservableObject {
             break
         }
 
-        course.recycle(playerDistance: forwardDistance)
+        course.recycle(playerDistance: forwardDistance, score: score)
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? targetAltitude
+        targetGapHalf = course.nextGapHalf(playerDistance: forwardDistance) ?? targetGapHalf
         applyWorldTransform()
     }
 

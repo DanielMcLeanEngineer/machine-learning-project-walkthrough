@@ -12,6 +12,11 @@ struct GameHUDView: View {
                 .monospacedDigit()
                 .shadow(radius: 6)
 
+            Text("\(Int(engine.distance)) m")
+                .font(.caption.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+
             heightGauge
 
             if engine.phase == .gameOver {
@@ -32,7 +37,7 @@ struct GameHUDView: View {
                 let t = (alt - GameConfig.minAltitude) / range
                 return h - CGFloat(t) * h
             }
-            let bandHalf = CGFloat(GameConfig.gapHalfHeight / range) * h
+            let bandHalf = CGFloat(engine.targetGapHalf / range) * h
 
             ZStack(alignment: .top) {
                 Capsule().fill(.white.opacity(0.15)).frame(width: 8)
@@ -57,6 +62,8 @@ struct GameHUDView: View {
     private var gameOverCard: some View {
         VStack(spacing: 6) {
             Text("CRASH").font(.title3.weight(.heavy)).foregroundStyle(.red)
+            Text("Score \(engine.score) · \(Int(engine.distance)) m")
+                .font(.caption).foregroundStyle(.secondary)
             Text("Best \(engine.bestScore)").font(.caption).foregroundStyle(.secondary)
             Text("Press Restart in the menu window")
                 .font(.caption2)

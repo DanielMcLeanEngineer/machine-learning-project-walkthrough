@@ -44,6 +44,11 @@ final class FeedbackEngine: ObservableObject {
         haptics.transient(intensity: 0.8, sharpness: 0.7)
     }
 
+    func coin() {
+        sound.playCoin()
+        haptics.transient(intensity: 0.6, sharpness: 0.9)
+    }
+
     func crash() {
         sound.stopWind()
         sound.playCrash()
@@ -63,11 +68,13 @@ private final class SoundSynth {
 
     private let flapNode = AVAudioPlayerNode()
     private let scoreNode = AVAudioPlayerNode()
+    private let coinNode = AVAudioPlayerNode()
     private let crashNode = AVAudioPlayerNode()
     private let windNode = AVAudioPlayerNode()
 
     private var flapBuffer: AVAudioPCMBuffer!
     private var scoreBuffer: AVAudioPCMBuffer!
+    private var coinBuffer: AVAudioPCMBuffer!
     private var crashBuffer: AVAudioPCMBuffer!
     private var windBuffer: AVAudioPCMBuffer!
 
@@ -82,10 +89,11 @@ private final class SoundSynth {
 
         flapBuffer = makeFlap()
         scoreBuffer = makeScore()
+        coinBuffer = makeCoin()
         crashBuffer = makeCrash()
         windBuffer = makeWind()
 
-        for node in [flapNode, scoreNode, crashNode, windNode] {
+        for node in [flapNode, scoreNode, coinNode, crashNode, windNode] {
             engine.attach(node)
             engine.connect(node, to: engine.mainMixerNode, format: format)
         }
@@ -104,6 +112,12 @@ private final class SoundSynth {
         guard engine.isRunning else { return }
         scoreNode.scheduleBuffer(scoreBuffer, at: nil, options: .interrupts, completionHandler: nil)
         scoreNode.play()
+    }
+
+    func playCoin() {
+        guard engine.isRunning else { return }
+        coinNode.scheduleBuffer(coinBuffer, at: nil, options: .interrupts, completionHandler: nil)
+        coinNode.play()
     }
 
     func playCrash() {
@@ -160,6 +174,16 @@ private final class SoundSynth {
             let tone = sinf(2 * .pi * f * t)
             let harmonic = 0.3 * sinf(2 * .pi * f * 2 * t)
             return (tone + harmonic) * decay * 0.35
+        }
+    }
+
+    /// Quick bright "ting" for grabbing a coin — a high sine with a fast decay.
+    private func makeCoin() -> AVAudioPCMBuffer {
+        return makeBuffer(seconds: 0.18) { _, t, _ in
+            let decay = expf(-t * 16)
+            let tone = sinf(2 * .pi * 1760 * t)
+            let shimmer = 0.4 * sinf(2 * .pi * 2640 * t)
+            return (tone + shimmer) * decay * 0.3
         }
     }
 

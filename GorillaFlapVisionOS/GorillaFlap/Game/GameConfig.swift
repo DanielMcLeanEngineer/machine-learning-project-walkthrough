@@ -32,15 +32,44 @@ enum GameConfig {
     static let obstaclePoolSize: Int = 6
     /// Spacing between consecutive obstacles along the course (meters).
     static let obstacleSpacing: Float = 7.0
-    /// Half-height of the gap you fly through. Constant so the difficulty is purely
-    /// "find the right altitude", and so obstacles can be rigid recyclable prefabs.
-    static let gapHalfHeight: Float = 0.55
+    /// Starting (easiest) half-height of the gap you fly through.
+    static let gapHalfHeight: Float = 0.58
+    /// Hardest (smallest) half-height the gap shrinks to as the score climbs.
+    static let gapHalfHeightMin: Float = 0.34
     /// Random gap-center altitude is chosen in this band.
     static let gapCenterRange: ClosedRange<Float> = 0.4...3.0
     /// How far behind the player an obstacle may fall before it gets recycled ahead.
     static let recycleBehind: Float = 2.5
     /// Effective collision radius of the player when checking gap fit.
     static let playerRadius: Float = 0.22
+
+    // MARK: Difficulty ramp
+    /// Score at which the gap reaches its smallest size.
+    static let gapTightenByScore: Float = 25
+    /// Score at which forward speed reaches its fastest.
+    static let speedRampByScore: Float = 30
+    /// Extra forward speed added on top of `baseForwardSpeed` at max difficulty.
+    static let maxDifficultySpeedBonus: Float = 2.2
+
+    // MARK: Collectibles
+    /// Fraction of obstacles that spawn a bonus coin in the center of the gap.
+    static let coinSpawnChance: Float = 0.4
+    /// Points awarded for collecting a coin.
+    static let coinValue: Int = 3
+    /// How close (meters) the player altitude must be to grab the coin.
+    static let coinGrabRadius: Float = 0.35
+
+    /// Gap half-height for a given score — eases from `gapHalfHeight` to `gapHalfHeightMin`.
+    static func gapHalfHeight(forScore score: Int) -> Float {
+        let t = min(Float(score) / gapTightenByScore, 1)
+        return gapHalfHeight + (gapHalfHeightMin - gapHalfHeight) * t
+    }
+
+    /// Base forward speed for a given score — ramps from `baseForwardSpeed` upward.
+    static func forwardBaseSpeed(forScore score: Int) -> Float {
+        let t = min(Float(score) / speedRampByScore, 1)
+        return baseForwardSpeed + maxDifficultySpeedBonus * t
+    }
 
     // MARK: Hand tracking
     /// A downward wrist speed above this (m/s) counts as a swing/flap.

@@ -4,6 +4,7 @@ import SwiftUI
 struct MainMenuView: View {
     @EnvironmentObject private var engine: GameEngine
     @EnvironmentObject private var hands: HandMotionTracker
+    @StateObject private var leaderboard = Leaderboard.shared
 
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
@@ -60,10 +61,17 @@ struct MainMenuView: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
+
+                if leaderboard.isAuthenticated {
+                    Label("Game Center connected", systemImage: "person.crop.circle.badge.checkmark")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(32)
             .frame(maxWidth: .infinity)
         }
+        .task { leaderboard.authenticate() }
     }
 
     private var instructions: some View {

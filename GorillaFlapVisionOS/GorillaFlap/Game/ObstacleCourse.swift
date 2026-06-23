@@ -12,10 +12,17 @@ final class ObstacleCourse {
 
     final class Obstacle {
         let entity: Entity
+        let coin: Entity
         var z: Float = 0
         var gapCenter: Float = 0
+        var gapHalf: Float = GameConfig.gapHalfHeight
         var scored = false
-        init(entity: Entity) { self.entity = entity }
+        var hasCoin = false
+        var coinTaken = false
+        init(entity: Entity, coin: Entity) {
+            self.entity = entity
+            self.coin = coin
+        }
     }
 
     private(set) var obstacles: [Obstacle] = []
@@ -31,9 +38,12 @@ final class ObstacleCourse {
 
         nextSpawnZ = GameConfig.startRunway
         for _ in 0..<GameConfig.obstaclePoolSize {
-            let obstacle = Obstacle(entity: AssetFactory.makeObstacle())
-            worldRoot.addChild(obstacle.entity)
-            place(obstacle, atZ: nextSpawnZ)
+            let entity = AssetFactory.makeObstacle()
+            let coin = AssetFactory.makeCoin()
+            entity.addChild(coin)
+            let obstacle = Obstacle(entity: entity, coin: coin)
+            worldRoot.addChild(entity)
+            place(obstacle, atZ: nextSpawnZ, score: 0)
             nextSpawnZ += GameConfig.obstacleSpacing
             obstacles.append(obstacle)
         }
@@ -43,26 +53,42 @@ final class ObstacleCourse {
     func reset() {
         nextSpawnZ = GameConfig.startRunway
         for obstacle in obstacles {
-            place(obstacle, atZ: nextSpawnZ)
+            place(obstacle, atZ: nextSpawnZ, score: 0)
             nextSpawnZ += GameConfig.obstacleSpacing
         }
         refreshNextTarget(playerDistance: 0)
     }
 
-    private func place(_ obstacle: Obstacle, atZ z: Float) {
+    private func place(_ obstacle: Obstacle, atZ z: Float, score: Int) {
         obstacle.z = z
         obstacle.gapCenter = Float.random(in: GameConfig.gapCenterRange)
+        obstacle.gapHalf = GameConfig.gapHalfHeight(forScore: score)
         obstacle.scored = false
         // Local position; worldRoot handles the player-relative offset each frame.
         obstacle.entity.position = [0, obstacle.gapCenter, -z]
-        setFrameHighlighted(obstacle, false)
+        AssetFactory.setGap(obstacle.entity, halfHeight: obstacle.gapHalf)
+        AssetFactory.setHighlighted(obstacle.entity, false)
+
+        // Some gaps carry a bonus coin in their center.
+        obstacle.hasCoin = Float.random(in: 0...1) < GameConfig.coinSpawnChance
+        obstacle.coinTaken = false
+        obstacle.coin.isEnabled = obstacle.hasCoin
+        obstacle.coin.position = .zero   // gap center, since the coin is a child of the obstacle
     }
 
-    /// Move obstacles that the player has passed back out to the front of the course.
-    func recycle(playerDistance: Float) {
+    /// Move obstacles the player has passed back out to the front, scaling difficulty
+    /// to the current score.
+    func recycle(playerDistance: Float, score: Int) {
         for obstacle in obstacles where obstacle.z < playerDistance - GameConfig.recycleBehind {
-            place(obstacle, atZ: nextSpawnZ)
+            place(obstacle, atZ: nextSpawnZ, score: score)
             nextSpawnZ += GameConfig.obstacleSpacing
+        }
+    }
+
+    /// Idle animation: spin any enabled coins a little each frame.
+    func animate(deltaTime: Float) {
+        for obstacle in obstacles where obstacle.hasCoin && !obstacle.coinTaken {
+            obstacle.coin.orientation *= simd_quatf(angle: 2.5 * deltaTime, axis: [0, 1, 0])
         }
     }
 
@@ -76,7 +102,7 @@ final class ObstacleCourse {
         for obstacle in obstacles where !obstacle.scored {
             if previousDistance < obstacle.z && currentDistance >= obstacle.z {
                 obstacle.scored = true
-                let fitsTolerance = GameConfig.gapHalfHeight - GameConfig.playerRadius
+                let fitsTolerance = obstacle.gapHalf - GameConfig.playerRadius
                 if abs(altitude - obstacle.gapCenter) <= fitsTolerance {
                     result = .scored
                 } else {
@@ -87,28 +113,41 @@ final class ObstacleCourse {
         return result
     }
 
+    /// Collect any coin whose plane the player crosses while close to its center.
+    /// Returns the number of coins grabbed this frame.
+    func collectCoins(previousDistance: Float, currentDistance: Float, altitude: Float) -> Int {
+        var grabbed = 0
+        for obstacle in obstacles where obstacle.hasCoin && !obstacle.coinTaken {
+            if previousDistance < obstacle.z && currentDistance >= obstacle.z,
+               abs(altitude - obstacle.gapCenter) <= GameConfig.coinGrabRadius {
+                obstacle.coinTaken = true
+                obstacle.coin.isEnabled = false
+                grabbed += 1
+            }
+        }
+        return grabbed
+    }
+
     /// Altitude of the nearest not-yet-cleared obstacle — feeds the HUD target marker.
     func nextGapCenter(playerDistance: Float) -> Float? {
-        obstacles
-            .filter { !$0.scored && $0.z >= playerDistance }
-            .min { $0.z < $1.z }?
-            .gapCenter
+        nextObstacle(playerDistance: playerDistance)?.gapCenter
+    }
+
+    /// Gap half-height of the nearest not-yet-cleared obstacle — sizes the HUD band.
+    func nextGapHalf(playerDistance: Float) -> Float? {
+        nextObstacle(playerDistance: playerDistance)?.gapHalf
     }
 
     func refreshNextTarget(playerDistance: Float) {
-        let target = obstacles
-            .filter { !$0.scored && $0.z >= playerDistance }
-            .min { $0.z < $1.z }
+        let target = nextObstacle(playerDistance: playerDistance)
         for obstacle in obstacles {
-            setFrameHighlighted(obstacle, obstacle === target)
+            AssetFactory.setHighlighted(obstacle.entity, obstacle === target)
         }
     }
 
-    private func setFrameHighlighted(_ obstacle: Obstacle, _ highlighted: Bool) {
-        guard let frame = obstacle.entity.components[GapFrameComponent.self]?.frame else { return }
-        let material = highlighted ? AssetFactory.nextGapAccentColor : AssetFactory.gapAccentColor
-        frame.children.forEach { child in
-            (child as? ModelEntity)?.model?.materials = [material]
-        }
+    private func nextObstacle(playerDistance: Float) -> Obstacle? {
+        obstacles
+            .filter { !$0.scored && $0.z >= playerDistance }
+            .min { $0.z < $1.z }
     }
 }

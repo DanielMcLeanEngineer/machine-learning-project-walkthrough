@@ -56,6 +56,29 @@ flaps/scores fire transient taps and crashes fire a short rumble; with no such
 controller (the normal hand-tracking case) it's a clean no-op. The menu states this so
 expectations are clear.
 
+## Difficulty & scoring
+
+The run gets harder the better you do (all curves live in `GameConfig`):
+
+- **Gaps tighten** from `0.58` to `0.34` half-height over your first ~25 points.
+- **Forward speed ramps** up by ~2.2 m/s over your first ~30 points.
+- **Bonus coins** spawn in ~40% of gaps; grabbing one (fly through its center) is worth
+  3 points and plays a bright "ting". Coins gently spin.
+
+The HUD's amber target band now reflects the *actual* size of the next gap, so it visibly
+shrinks as difficulty climbs. Distance travelled is shown on the HUD and the crash card.
+Best score is persisted locally and submitted to Game Center when beaten.
+
+## Game Center
+
+`Leaderboard` (in `Game/`) authenticates the local player on launch and submits the best
+score. It's fully best-effort — the game is identical if Game Center is unavailable or
+declined. To light it up:
+
+1. In **Signing & Capabilities**, add the **Game Center** capability to the target.
+2. In **App Store Connect**, create a leaderboard and set its ID to match
+   `Leaderboard.leaderboardID` (`com.danielmclean.gorillaflap.highscores`).
+
 ## Assets
 
 Deliberately minimal — **everything is a RealityKit primitive** (boxes) with a tiny

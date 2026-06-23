@@ -1,4 +1,5 @@
 import SwiftUI
+import RealityKit
 
 @main
 struct GorillaFlapApp: App {
@@ -9,6 +10,9 @@ struct GorillaFlapApp: App {
     @StateObject private var engine: GameEngine
 
     init() {
+        ObstacleParts.registerComponent()
+        SpinComponent.registerComponent()
+
         let settings = GameSettings()
         let hands = HandMotionTracker(settings: settings)
         let feedback = FeedbackEngine()
