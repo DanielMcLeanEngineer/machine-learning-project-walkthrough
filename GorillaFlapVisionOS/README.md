@@ -151,7 +151,12 @@ under `GorillaFlap/` is picked up automatically — no manual project bookkeepin
 
 ## Tuning
 
-Open `GameConfig.swift`. Want floatier flight? Raise `flapImpulseBase` or soften
-`gravity`. Faster runs? Raise `baseForwardSpeed` / `maxSwingBoost`. Harder gaps? Shrink
-`gapHalfHeight` or widen `gapCenterRange`. Swings not registering? Lower
-`swingSpeedThreshold`.
+For live feel changes, use the in-app **Calibration** sliders (swing sensitivity, lift,
+floatiness, comfort) — they persist and apply instantly, even mid-run, and are the right
+first stop for dialing in arm-swing feel on the device.
+
+For deeper design changes, edit `GameConfig.swift`: the difficulty curves
+(`gapHalf(forScore:)`, `forwardBaseSpeed(forScore:)`), gap bounds
+(`gapHalfHeight` / `gapHalfHeightMin` / `gapCenterRange`), combo (`cleanPassThreshold`,
+`maxComboBonus`), and coins (`coinSpawnChance`, `coinValue`). Note that swing detection
+and gravity are driven by `GameSettings` (the sliders) layered on these defaults.
