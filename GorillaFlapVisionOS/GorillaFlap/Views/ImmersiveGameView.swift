@@ -21,6 +21,12 @@ struct ImmersiveGameView: View {
                 hud.position = [0.42, -0.28, -1.4]
                 head.addChild(hud)
             }
+
+            // Head-locked comfort vignette, driven by the game loop.
+            let vignette = await ComfortVignette.make()
+            head.addChild(vignette)
+            engine.comfortVignette = vignette
+
             content.add(head)
         } attachments: {
             Attachment(id: "hud") {

@@ -31,6 +31,11 @@ struct CalibrationView: View {
                    value: $settings.floatiness,
                    low: "Heavy", high: "Floaty",
                    help: "How quickly gravity pulls you back down.")
+
+            slider("Comfort vignette",
+                   value: $settings.comfortVignette,
+                   low: "Off", high: "Strong",
+                   help: "Dims your peripheral vision during fast motion to ease motion comfort.")
         }
         .padding(20)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))

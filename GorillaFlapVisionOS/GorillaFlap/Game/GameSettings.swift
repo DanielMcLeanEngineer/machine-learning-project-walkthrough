@@ -15,16 +15,20 @@ final class GameSettings: ObservableObject {
     @Published var liftStrength: Double { didSet { persist(\.liftStrength, key: Keys.lift) } }
     /// 0 = falls fast (heavy), 1 = hangs in the air (floaty).
     @Published var floatiness: Double { didSet { persist(\.floatiness, key: Keys.float) } }
+    /// 0 = no peripheral dimming, 1 = strong vignette during fast motion (comfort).
+    @Published var comfortVignette: Double { didSet { persist(\.comfortVignette, key: Keys.vignette) } }
 
     // MARK: Defaults (chosen so the sliders start at today's hand-tuned feel)
     static let defaultSensitivity = 0.6
     static let defaultLift = 1.0
     static let defaultFloatiness = 0.5
+    static let defaultComfortVignette = 0.6
 
     private enum Keys {
         static let sensitivity = "gf.swingSensitivity"
         static let lift = "gf.liftStrength"
         static let float = "gf.floatiness"
+        static let vignette = "gf.comfortVignette"
     }
 
     init() {
@@ -32,12 +36,14 @@ final class GameSettings: ObservableObject {
         swingSensitivity = defaults.object(forKey: Keys.sensitivity) as? Double ?? Self.defaultSensitivity
         liftStrength = defaults.object(forKey: Keys.lift) as? Double ?? Self.defaultLift
         floatiness = defaults.object(forKey: Keys.float) as? Double ?? Self.defaultFloatiness
+        comfortVignette = defaults.object(forKey: Keys.vignette) as? Double ?? Self.defaultComfortVignette
     }
 
     func resetToDefaults() {
         swingSensitivity = Self.defaultSensitivity
         liftStrength = Self.defaultLift
         floatiness = Self.defaultFloatiness
+        comfortVignette = Self.defaultComfortVignette
     }
 
     // MARK: Derived values consumed by the simulation
@@ -51,6 +57,11 @@ final class GameSettings: ObservableObject {
     /// Multiplier applied to each swing's upward impulse.
     var liftMultiplier: Float {
         Float(liftStrength)
+    }
+
+    /// User-scaled cap on how dark the comfort vignette can get.
+    var vignetteAmount: Float {
+        Float(comfortVignette)
     }
 
     /// Gravity after the floatiness scale. Floatiness 0...1 maps the pull to 1.4...0.6×.

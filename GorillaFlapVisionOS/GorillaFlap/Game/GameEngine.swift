@@ -30,6 +30,9 @@ final class GameEngine: ObservableObject {
 
     let worldRoot = Entity()
 
+    /// Optional head-locked comfort dimmer, supplied by the view once built.
+    var comfortVignette: Entity?
+
     private var course: ObstacleCourse!
     private let hands: HandMotionTracker
     private let feedback: FeedbackEngine
@@ -79,6 +82,7 @@ final class GameEngine: ObservableObject {
         case .playing:
             phase = .paused
             feedback.pauseRun()
+            clearComfortVignette()
         case .paused:
             phase = .playing
             feedback.resumeRun()
@@ -94,6 +98,7 @@ final class GameEngine: ObservableObject {
             Task { await Leaderboard.shared.submit(score: bestScore) }
         }
         feedback.endRun()
+        clearComfortVignette()
         phase = .gameOver
     }
 
@@ -157,7 +162,24 @@ final class GameEngine: ObservableObject {
         course.recycle(playerDistance: forwardDistance, score: score)
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? targetAltitude
         targetGapHalf = course.nextGapHalf(playerDistance: forwardDistance) ?? targetGapHalf
+        updateComfortVignette(forwardSpeed: forwardSpeed)
         applyWorldTransform()
+    }
+
+    /// Fade the peripheral dimmer in with speed and vertical motion, scaled by the
+    /// player's comfort preference.
+    private func updateComfortVignette(forwardSpeed: Float) {
+        guard let vignette = comfortVignette else { return }
+        let speedRange = GameConfig.maxSwingBoost + GameConfig.maxDifficultySpeedBonus
+        let speedExcess = max(0, forwardSpeed - GameConfig.baseForwardSpeed) / speedRange
+        let vertical = abs(verticalVelocity) / GameConfig.maxVerticalSpeed
+        let raw = min(1, speedExcess * 0.7 + vertical * 0.5)
+        let opacity = raw * settings.vignetteAmount * 0.85
+        vignette.components.set(OpacityComponent(opacity: opacity))
+    }
+
+    private func clearComfortVignette() {
+        comfortVignette?.components.set(OpacityComponent(opacity: 0))
     }
 
     /// Slide the world so the player's virtual position maps to the real, still camera.

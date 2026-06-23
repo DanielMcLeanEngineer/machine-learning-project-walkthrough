@@ -34,8 +34,10 @@ slid around the still player:
 
 Vestibular comfort comes from: a frame-synced fixed simulation step (clamped so a frame
 hitch can't tunnel you through a wall), capped vertical speed and gentle gravity, a
-faint ground grid for an optical-flow reference, and no artificial yaw/roll — you still
-freely turn your real head.
+faint ground grid for an optical-flow reference, no artificial yaw/roll (you still freely
+turn your real head), and an optional **comfort vignette** that dims your periphery as
+forward/vertical speed rises — the standard VR trick for reducing vection. Its strength
+is a slider (default on, ~60%).
 
 ## Sound & haptic feedback
 
@@ -98,6 +100,8 @@ GorillaFlap/
     ObstacleCourse.swift     // procedural pool of recyclable gap "windows"
     HandMotionTracker.swift  // ARKit hand tracking -> flap impulse + forward thrust
     FeedbackEngine.swift     // procedural spatial sound + best-effort controller haptics
+    ComfortVignette.swift    // generated head-locked peripheral dimmer
+    Leaderboard.swift        // best-effort Game Center auth + score submit
     AssetFactory.swift       // simple primitive visuals
   Views/
     MainMenuView.swift       // 2D start/restart + how-to
@@ -116,8 +120,11 @@ change instantly:
   detection threshold, 1.6 → 0.45 m/s).
 - **Lift strength** — multiplier on each swing's upward boost (0.6×–1.7×).
 - **Floatiness** — scales gravity (1.4×–0.6×), from heavy to hang-time.
+- **Comfort vignette** — how strongly the periphery dims during fast motion.
 
-Defaults match the original hand-tuned feel; **Reset** restores them. These layer on top
+The in-headset HUD also has a quick swing-sensitivity +/- stepper and Pause / Restart /
+Play Again buttons, so you never need the menu window mid-session. Defaults match the
+original hand-tuned feel; **Reset** restores them. These layer on top
 of `GameConfig`, which still holds the fixed design constants.
 
 ## Build & run
