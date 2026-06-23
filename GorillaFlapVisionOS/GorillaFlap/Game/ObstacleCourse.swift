@@ -1,4 +1,5 @@
 import RealityKit
+import UIKit
 import simd
 
 /// Owns the recyclable pool of obstacle "windows" and the collision/scoring checks.
@@ -67,6 +68,7 @@ final class ObstacleCourse {
         // Local position; worldRoot handles the player-relative offset each frame.
         obstacle.entity.position = [0, obstacle.gapCenter, -z]
         AssetFactory.setGap(obstacle.entity, halfHeight: obstacle.gapHalf)
+        AssetFactory.setWallTint(obstacle.entity, Self.wallTint(forScore: score))
         AssetFactory.setHighlighted(obstacle.entity, false)
 
         // Some gaps carry a bonus coin in their center.
@@ -93,7 +95,8 @@ final class ObstacleCourse {
     }
 
     /// Result of advancing the player one frame against the obstacle field.
-    enum Crossing { case none, scored, crashed }
+    /// `scored` carries 0 (dead center) … 1 (just barely fit) for combo scoring.
+    enum Crossing { case none, scored(centerOffset: Float), crashed }
 
     /// Detect plane crossings between last frame and this frame. Returns whether the
     /// player just cleared a gap (+score) or hit a wall (game over).
@@ -103,8 +106,9 @@ final class ObstacleCourse {
             if previousDistance < obstacle.z && currentDistance >= obstacle.z {
                 obstacle.scored = true
                 let fitsTolerance = obstacle.gapHalf - GameConfig.playerRadius
-                if abs(altitude - obstacle.gapCenter) <= fitsTolerance {
-                    result = .scored
+                let offset = abs(altitude - obstacle.gapCenter)
+                if offset <= fitsTolerance {
+                    result = .scored(centerOffset: min(1, offset / max(0.0001, fitsTolerance)))
                 } else {
                     return .crashed
                 }
@@ -149,5 +153,16 @@ final class ObstacleCourse {
         obstacles
             .filter { !$0.scored && $0.z >= playerDistance }
             .min { $0.z < $1.z }
+    }
+
+    /// Walls cool white at the start and warm toward red as difficulty climbs.
+    private static func wallTint(forScore score: Int) -> UIColor {
+        let t = CGFloat(min(Float(score) / GameConfig.speedRampByScore, 1))
+        return UIColor(
+            red: 0.85,
+            green: 0.85 - 0.45 * t,
+            blue: 0.85 - 0.55 * t,
+            alpha: 1.0
+        )
     }
 }

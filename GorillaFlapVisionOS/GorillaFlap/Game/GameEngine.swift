@@ -18,6 +18,8 @@ final class GameEngine: ObservableObject {
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var score = 0
     @Published private(set) var bestScore = 0
+    /// Current streak of clean (centered) passes — drives bonus points and HUD flair.
+    @Published private(set) var combo = 0
     /// Meters travelled this run — a secondary stat shown on the HUD / game-over card.
     @Published private(set) var distance: Float = 0
     /// Current altitude and the next target gap altitude, for the HUD's height gauge.
@@ -64,6 +66,7 @@ final class GameEngine: ObservableObject {
 
     func startGame() {
         score = 0
+        combo = 0
         distance = 0
         verticalVelocity = 0
         forwardDistance = 0
@@ -145,8 +148,14 @@ final class GameEngine: ObservableObject {
 
         // Collisions / scoring against any obstacle plane crossed this frame.
         switch course.evaluate(previousDistance: previousDistance, currentDistance: forwardDistance, altitude: altitude) {
-        case .scored:
+        case .scored(let centerOffset):
             score += 1
+            if centerOffset <= GameConfig.cleanPassThreshold {
+                combo += 1
+                score += min(combo, GameConfig.maxComboBonus)
+            } else {
+                combo = 0
+            }
             feedback.score()
             course.recycle(playerDistance: forwardDistance, score: score)
             course.refreshNextTarget(playerDistance: forwardDistance)

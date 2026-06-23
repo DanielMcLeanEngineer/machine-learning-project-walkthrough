@@ -5,6 +5,7 @@ import SwiftUI
 struct GameHUDView: View {
     @EnvironmentObject private var engine: GameEngine
     @EnvironmentObject private var settings: GameSettings
+    @State private var scorePulse = false
 
     var body: some View {
         VStack(spacing: 14) {
@@ -12,6 +13,19 @@ struct GameHUDView: View {
                 .font(.system(size: 64, weight: .black, design: .rounded))
                 .monospacedDigit()
                 .shadow(radius: 6)
+                .scaleEffect(scorePulse ? 1.18 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.5), value: scorePulse)
+                .onChange(of: engine.score) {
+                    scorePulse = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { scorePulse = false }
+                }
+
+            if engine.combo >= 2 {
+                Text("COMBO ×\(engine.combo)")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.orange)
+                    .transition(.scale.combined(with: .opacity))
+            }
 
             Text("\(Int(engine.distance)) m")
                 .font(.caption.weight(.semibold))

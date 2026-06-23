@@ -66,6 +66,10 @@ The run gets harder the better you do (all curves live in `GameConfig`):
 - **Forward speed ramps** up by ~2.2 m/s over your first ~30 points.
 - **Bonus coins** spawn in ~40% of gaps; grabbing one (fly through its center) is worth
   3 points and plays a bright "ting". Coins gently spin.
+- **Combo**: passing through the *center* of a gap (not just squeaking through) builds a
+  streak; each clean pass adds bonus points equal to the current combo (capped at 5),
+  shown as a `COMBO ×N` badge. A sloppy-but-safe pass keeps your run alive but resets it.
+- **Walls warm** from white toward red as difficulty rises, so the ramp is visible.
 
 The HUD's amber target band now reflects the *actual* size of the next gap, so it visibly
 shrinks as difficulty climbs. Distance travelled is shown on the HUD and the crash card.

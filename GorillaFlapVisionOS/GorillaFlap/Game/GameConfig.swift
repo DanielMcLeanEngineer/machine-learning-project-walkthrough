@@ -51,6 +51,12 @@ enum GameConfig {
     /// Extra forward speed added on top of `baseForwardSpeed` at max difficulty.
     static let maxDifficultySpeedBonus: Float = 2.2
 
+    // MARK: Combo (precision passes)
+    /// A pass counts as "clean" when the center offset ratio is within this (0 = center).
+    static let cleanPassThreshold: Float = 0.45
+    /// Bonus points per clean pass = current combo, capped here.
+    static let maxComboBonus: Int = 5
+
     // MARK: Collectibles
     /// Fraction of obstacles that spawn a bonus coin in the center of the gap.
     static let coinSpawnChance: Float = 0.4

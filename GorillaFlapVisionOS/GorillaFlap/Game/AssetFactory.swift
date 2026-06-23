@@ -1,4 +1,5 @@
 import RealityKit
+import UIKit
 import simd
 
 /// Builds every visual in the game from RealityKit primitives. Deliberately simple:
@@ -67,6 +68,14 @@ enum AssetFactory {
         p.bottomBar?.position.y = -half
         p.leftBar?.scale.y = 2 * half
         p.rightBar?.scale.y = 2 * half
+    }
+
+    /// Tint an obstacle's walls — used to warm their color as difficulty climbs.
+    static func setWallTint(_ obstacle: Entity, _ color: UIColor) {
+        guard let p = obstacle.components[ObstacleParts.self] else { return }
+        let material = SimpleMaterial(color: color, roughness: 0.9, isMetallic: false)
+        (p.topWall as? ModelEntity)?.model?.materials = [material]
+        (p.bottomWall as? ModelEntity)?.model?.materials = [material]
     }
 
     /// Toggle the frame between the normal accent and the "next target" highlight.
