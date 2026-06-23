@@ -21,6 +21,7 @@ final class HandMotionTracker: ObservableObject {
 
     private let session = ARKitSession()
     private let provider = HandTrackingProvider()
+    private let settings: GameSettings
 
     private var hands: [HandAnchor.Chirality: HandState] = [:]
 
@@ -33,6 +34,10 @@ final class HandMotionTracker: ObservableObject {
         var lastY: Float
         var lastTime: TimeInterval
         var lastSwingTime: TimeInterval = 0
+    }
+
+    init(settings: GameSettings) {
+        self.settings = settings
     }
 
     func start() async {
@@ -82,7 +87,7 @@ final class HandMotionTracker: ObservableObject {
             let downwardSpeed = -verticalSpeed
 
             let offCooldown = (now - state.lastSwingTime) > GameConfig.swingCooldown
-            if downwardSpeed > GameConfig.swingSpeedThreshold && offCooldown {
+            if downwardSpeed > settings.swingSpeedThreshold && offCooldown {
                 registerSwing(strength: downwardSpeed)
                 state.lastSwingTime = now
             }
@@ -94,10 +99,11 @@ final class HandMotionTracker: ObservableObject {
     }
 
     private func registerSwing(strength: Float) {
-        // Map swing speed (m/s, starting at the threshold) to a 1...maxScale multiplier.
-        let over = strength - GameConfig.swingSpeedThreshold
+        // Map swing speed (m/s, starting at the threshold) to a 1...maxScale multiplier,
+        // then apply the player's lift-strength calibration.
+        let over = strength - settings.swingSpeedThreshold
         let scale = min(1 + over, GameConfig.flapImpulseMaxScale)
-        pendingFlap += GameConfig.flapImpulseBase * scale
+        pendingFlap += GameConfig.flapImpulseBase * scale * settings.liftMultiplier
         swingEnergy = min(swingEnergy + GameConfig.swingEnergyPerSwing, GameConfig.maxSwingBoost)
     }
 

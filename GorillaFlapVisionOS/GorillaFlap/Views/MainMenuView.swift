@@ -10,49 +10,60 @@ struct MainMenuView: View {
     @State private var immersiveOpen = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 6) {
-                Text("GORILLA·FLAP")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
-                Text("Swing to run. Swing to fly. Find the gap.")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-            }
+        ScrollView {
+            VStack(spacing: 24) {
+                VStack(spacing: 6) {
+                    Text("GORILLA·FLAP")
+                        .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    Text("Swing to run. Swing to fly. Find the gap.")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
 
-            instructions
+                instructions
 
-            if engine.bestScore > 0 {
-                Label("Best: \(engine.bestScore)", systemImage: "trophy.fill")
-                    .font(.title3.weight(.semibold))
-            }
+                if engine.bestScore > 0 {
+                    Label("Best: \(engine.bestScore)", systemImage: "trophy.fill")
+                        .font(.title3.weight(.semibold))
+                }
 
-            Button(action: launch) {
-                Text(immersiveOpen ? "Restart Run" : "Enter & Play")
-                    .font(.title2.weight(.bold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-            }
-            .buttonStyle(.borderedProminent)
+                Button(action: launch) {
+                    Text(immersiveOpen ? "Restart Run" : "Enter & Play")
+                        .font(.title2.weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
 
-            if immersiveOpen {
-                Button("Exit to Reality") { Task { await close() } }
-                    .buttonStyle(.bordered)
-            }
+                if immersiveOpen {
+                    Button("Exit to Reality") { Task { await close() } }
+                        .buttonStyle(.bordered)
+                }
 
-            if hands.authorizationDenied {
-                Text("Hand tracking is off. Enable it in Settings ▸ Privacy to play.")
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                CalibrationView()
+
+                if immersiveOpen {
+                    Text("Tip: tweak these sliders while you play — changes apply instantly.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                if hands.authorizationDenied {
+                    Text("Hand tracking is off. Enable it in Settings ▸ Privacy to play.")
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                }
+
+                Text("Spatial sound is built in. Haptics play through a paired game controller — Vision Pro has no haptics of its own.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
             }
-
-            Text("Spatial sound is built in. Haptics play through a paired game controller — Vision Pro has no haptics of its own.")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-                .multilineTextAlignment(.center)
+            .padding(32)
+            .frame(maxWidth: .infinity)
         }
-        .padding(32)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var instructions: some View {

@@ -27,6 +27,7 @@ final class GameEngine: ObservableObject {
     private var course: ObstacleCourse!
     private let hands: HandMotionTracker
     private let feedback: FeedbackEngine
+    private let settings: GameSettings
 
     // Player state in course coordinates.
     private var verticalVelocity: Float = 0
@@ -34,9 +35,10 @@ final class GameEngine: ObservableObject {
 
     private var updateSubscription: EventSubscription?
 
-    init(hands: HandMotionTracker, feedback: FeedbackEngine) {
+    init(hands: HandMotionTracker, feedback: FeedbackEngine, settings: GameSettings) {
         self.hands = hands
         self.feedback = feedback
+        self.settings = settings
     }
 
     func setup(content: RealityViewContent) {
@@ -76,11 +78,11 @@ final class GameEngine: ObservableObject {
         let dt = min(deltaTime, 1.0 / 30.0)   // clamp to avoid tunneling on hitches
 
         // Vertical: gravity + banked flap impulses, integrated and clamped.
-        verticalVelocity += GameConfig.gravity * dt
+        verticalVelocity += settings.effectiveGravity * dt
         let flapImpulse = hands.consumeFlapImpulse()
         if flapImpulse > 0 {
             verticalVelocity += flapImpulse
-            let maxImpulse = GameConfig.flapImpulseBase * GameConfig.flapImpulseMaxScale
+            let maxImpulse = GameConfig.flapImpulseBase * GameConfig.flapImpulseMaxScale * settings.liftMultiplier
             feedback.flap(intensity: flapImpulse / maxImpulse)
         }
         verticalVelocity = max(-GameConfig.maxVerticalSpeed, min(GameConfig.maxVerticalSpeed, verticalVelocity))

@@ -69,7 +69,8 @@ GorillaFlap/
   App/
     GorillaFlapApp.swift     // @main: menu window + full immersive space
   Game/
-    GameConfig.swift         // every tunable number in one place
+    GameConfig.swift         // fixed design defaults, all in one place
+    GameSettings.swift       // live, persisted player calibration (read every frame)
     GameEngine.swift         // simulation + per-frame step, scoring, game-over
     ObstacleCourse.swift     // procedural pool of recyclable gap "windows"
     HandMotionTracker.swift  // ARKit hand tracking -> flap impulse + forward thrust
@@ -77,9 +78,24 @@ GorillaFlap/
     AssetFactory.swift       // simple primitive visuals
   Views/
     MainMenuView.swift       // 2D start/restart + how-to
+    CalibrationView.swift    // live sliders: swing sensitivity / lift / floatiness
     ImmersiveGameView.swift  // RealityView host + head-locked HUD
     GameHUDView.swift        // score + altitude gauge
 ```
+
+## Calibration
+
+The menu has a **Calibration** panel with three sliders, persisted across launches and
+read by the simulation every frame — so you can drag them **while playing** and feel the
+change instantly:
+
+- **Swing sensitivity** — how hard you must swing for it to register (maps to the
+  detection threshold, 1.6 → 0.45 m/s).
+- **Lift strength** — multiplier on each swing's upward boost (0.6×–1.7×).
+- **Floatiness** — scales gravity (1.4×–0.6×), from heavy to hang-time.
+
+Defaults match the original hand-tuned feel; **Reset** restores them. These layer on top
+of `GameConfig`, which still holds the fixed design constants.
 
 ## Build & run
 
