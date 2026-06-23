@@ -40,6 +40,11 @@ final class FeedbackEngine: ObservableObject {
         sound.startWind()
     }
 
+    /// Continuously couple ambience to motion. `speed` is 0...1 (normalized).
+    func updateMotion(speed: Float) {
+        sound.setWindLevel(0.12 + 0.22 * max(0, min(1, speed)))
+    }
+
     /// `intensity` is 0...1 — how hard the swing was.
     func flap(intensity: Float) {
         let i = max(0, min(1, intensity))
@@ -136,13 +141,17 @@ private final class SoundSynth {
 
     func startWind() {
         guard engine.isRunning else { return }
-        windNode.volume = 0.18
+        windNode.volume = 0.14
         windNode.scheduleBuffer(windBuffer, at: nil, options: .loops, completionHandler: nil)
         windNode.play()
     }
 
     func stopWind() {
         windNode.stop()
+    }
+
+    func setWindLevel(_ level: Float) {
+        windNode.volume = level
     }
 
     // MARK: Buffer synthesis

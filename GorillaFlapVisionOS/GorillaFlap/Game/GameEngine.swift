@@ -181,6 +181,10 @@ final class GameEngine: ObservableObject {
         course.recycle(playerDistance: forwardDistance, score: score)
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? targetAltitude
         targetGapHalf = course.nextGapHalf(playerDistance: forwardDistance) ?? targetGapHalf
+
+        let speedRange = GameConfig.maxSwingBoost + GameConfig.maxDifficultySpeedBonus
+        let speedNorm = max(0, forwardSpeed - GameConfig.baseForwardSpeed) / speedRange
+        feedback.updateMotion(speed: speedNorm)
         updateComfortVignette(forwardSpeed: forwardSpeed)
         applyWorldTransform()
     }

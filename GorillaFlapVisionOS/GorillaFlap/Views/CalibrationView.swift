@@ -59,3 +59,10 @@ struct CalibrationView: View {
         }
     }
 }
+
+#Preview {
+    CalibrationView()
+        .environmentObject(GameSettings())
+        .frame(width: 360)
+        .padding()
+}
