@@ -95,8 +95,9 @@ final class ObstacleCourse {
     }
 
     /// Result of advancing the player one frame against the obstacle field.
-    /// `scored` carries 0 (dead center) … 1 (just barely fit) for combo scoring.
-    enum Crossing { case none, scored(centerOffset: Float), crashed }
+    /// `scored` carries 0 (dead center) … 1 (just barely fit) for combo scoring;
+    /// `crashed` carries the gap center so practice mode can snap the player into it.
+    enum Crossing { case none, scored(centerOffset: Float), crashed(gapCenter: Float) }
 
     /// Detect plane crossings between last frame and this frame. Returns whether the
     /// player just cleared a gap (+score) or hit a wall (game over).
@@ -110,7 +111,7 @@ final class ObstacleCourse {
                 if offset <= fitsTolerance {
                     result = .scored(centerOffset: min(1, offset / max(0.0001, fitsTolerance)))
                 } else {
-                    return .crashed
+                    return .crashed(gapCenter: obstacle.gapCenter)
                 }
             }
         }

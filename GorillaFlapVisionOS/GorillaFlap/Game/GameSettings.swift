@@ -17,6 +17,8 @@ final class GameSettings: ObservableObject {
     @Published var floatiness: Double { didSet { persist(\.floatiness, key: Keys.float) } }
     /// 0 = no peripheral dimming, 1 = strong vignette during fast motion (comfort).
     @Published var comfortVignette: Double { didSet { persist(\.comfortVignette, key: Keys.vignette) } }
+    /// Practice mode: hitting a wall snaps you to the gap instead of ending the run.
+    @Published var practiceMode: Bool { didSet { UserDefaults.standard.set(practiceMode, forKey: Keys.practice) } }
 
     // MARK: Defaults (chosen so the sliders start at today's hand-tuned feel)
     static let defaultSensitivity = 0.6
@@ -29,6 +31,7 @@ final class GameSettings: ObservableObject {
         static let lift = "gf.liftStrength"
         static let float = "gf.floatiness"
         static let vignette = "gf.comfortVignette"
+        static let practice = "gf.practiceMode"
     }
 
     init() {
@@ -37,6 +40,7 @@ final class GameSettings: ObservableObject {
         liftStrength = defaults.object(forKey: Keys.lift) as? Double ?? Self.defaultLift
         floatiness = defaults.object(forKey: Keys.float) as? Double ?? Self.defaultFloatiness
         comfortVignette = defaults.object(forKey: Keys.vignette) as? Double ?? Self.defaultComfortVignette
+        practiceMode = defaults.object(forKey: Keys.practice) as? Bool ?? false
     }
 
     func resetToDefaults() {

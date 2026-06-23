@@ -126,6 +126,10 @@ change instantly:
 - **Floatiness** — scales gravity (1.4×–0.6×), from heavy to hang-time.
 - **Comfort vignette** — how strongly the periphery dims during fast motion.
 
+There's also a **Practice mode** toggle: hit a wall and you snap into the gap (combo
+resets, soft cue) instead of crashing — ideal for learning the arm-swing timing before
+going for a real score.
+
 The in-headset HUD also has a quick swing-sensitivity +/- stepper and Pause / Restart /
 Play Again buttons, so you never need the menu window mid-session. Defaults match the
 original hand-tuned feel; **Reset** restores them. These layer on top

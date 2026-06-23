@@ -159,11 +159,21 @@ final class GameEngine: ObservableObject {
             feedback.score()
             course.recycle(playerDistance: forwardDistance, score: score)
             course.refreshNextTarget(playerDistance: forwardDistance)
-        case .crashed:
-            feedback.crash()
-            applyWorldTransform()
-            endGame()
-            return
+        case .crashed(let gapCenter):
+            if settings.practiceMode {
+                // Forgiving recovery: snap into the gap, reset combo, keep going.
+                combo = 0
+                altitude = gapCenter
+                verticalVelocity = 0
+                feedback.coin()   // soft cue instead of the heavy crash
+                course.recycle(playerDistance: forwardDistance, score: score)
+                course.refreshNextTarget(playerDistance: forwardDistance)
+            } else {
+                feedback.crash()
+                applyWorldTransform()
+                endGame()
+                return
+            }
         case .none:
             break
         }

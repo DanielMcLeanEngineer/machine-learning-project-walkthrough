@@ -4,6 +4,7 @@ import SwiftUI
 struct MainMenuView: View {
     @EnvironmentObject private var engine: GameEngine
     @EnvironmentObject private var hands: HandMotionTracker
+    @EnvironmentObject private var settings: GameSettings
     @StateObject private var leaderboard = Leaderboard.shared
 
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
@@ -40,6 +41,15 @@ struct MainMenuView: View {
                     Button("Exit to Reality") { Task { await close() } }
                         .buttonStyle(.bordered)
                 }
+
+                Toggle(isOn: $settings.practiceMode) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Practice mode").font(.subheadline.weight(.semibold))
+                        Text("Hit a wall and you snap into the gap instead of crashing — great for learning the swing.")
+                            .font(.caption2).foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 4)
 
                 CalibrationView()
 
