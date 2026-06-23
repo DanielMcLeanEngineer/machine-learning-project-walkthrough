@@ -63,7 +63,7 @@ final class ObstacleCourse {
     private func place(_ obstacle: Obstacle, atZ z: Float, score: Int) {
         obstacle.z = z
         obstacle.gapCenter = Float.random(in: GameConfig.gapCenterRange)
-        obstacle.gapHalf = GameConfig.gapHalfHeight(forScore: score)
+        obstacle.gapHalf = GameConfig.gapHalf(forScore: score)
         obstacle.scored = false
         // Local position; worldRoot handles the player-relative offset each frame.
         obstacle.entity.position = [0, obstacle.gapCenter, -z]

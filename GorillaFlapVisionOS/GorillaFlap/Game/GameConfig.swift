@@ -66,7 +66,7 @@ enum GameConfig {
     static let coinGrabRadius: Float = 0.35
 
     /// Gap half-height for a given score — eases from `gapHalfHeight` to `gapHalfHeightMin`.
-    static func gapHalfHeight(forScore score: Int) -> Float {
+    static func gapHalf(forScore score: Int) -> Float {
         let t = min(Float(score) / gapTightenByScore, 1)
         return gapHalfHeight + (gapHalfHeightMin - gapHalfHeight) * t
     }
