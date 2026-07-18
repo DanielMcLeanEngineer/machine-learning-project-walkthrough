@@ -8,6 +8,7 @@ struct ImmersiveGameView: View {
     @EnvironmentObject private var hands: HandMotionTracker
     @EnvironmentObject private var feedback: FeedbackEngine
     @EnvironmentObject private var settings: GameSettings
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         RealityView { content, attachments in
@@ -39,7 +40,11 @@ struct ImmersiveGameView: View {
             feedback.prepare()
             await hands.start()
         }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active { engine.pauseIfPlaying() }
+        }
         .onDisappear {
+            engine.pauseIfPlaying()
             feedback.endRun()
             hands.stop()
         }

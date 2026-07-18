@@ -52,6 +52,8 @@ struct MainMenuView: View {
                 }
                 .padding(.horizontal, 4)
 
+                HighScoresView()
+
                 CalibrationView()
 
                 if immersiveOpen {

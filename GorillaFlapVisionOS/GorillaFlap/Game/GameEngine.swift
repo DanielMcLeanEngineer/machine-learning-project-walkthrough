@@ -1,6 +1,7 @@
 import RealityKit
 import SwiftUI
 import Combine
+import UIKit
 import simd
 
 /// The simulation. Holds the RealityKit world, steps the physics every frame, folds in
@@ -45,6 +46,8 @@ final class GameEngine: ObservableObject {
     // Player state in course coordinates.
     private var verticalVelocity: Float = 0
     private var forwardDistance: Float = 0
+    /// Snapshot of the system Reduce Motion setting, refreshed at the start of each run.
+    private var reduceMotion = false
 
     private var updateSubscription: EventSubscription?
 
@@ -67,6 +70,7 @@ final class GameEngine: ObservableObject {
     }
 
     func startGame() {
+        reduceMotion = UIAccessibility.isReduceMotionEnabled
         score = 0
         combo = 0
         isNewBest = false
@@ -81,6 +85,11 @@ final class GameEngine: ObservableObject {
         applyWorldTransform()
         feedback.startRun()
         phase = .playing
+    }
+
+    /// Pause only if a run is active — used by lifecycle events.
+    func pauseIfPlaying() {
+        if phase == .playing { togglePause() }
     }
 
     func togglePause() {
@@ -104,6 +113,7 @@ final class GameEngine: ObservableObject {
             UserDefaults.standard.set(bestScore, forKey: bestScoreKey)
             Task { await Leaderboard.shared.submit(score: bestScore) }
         }
+        HighScores.shared.record(score: score)
         feedback.endRun()
         clearComfortVignette()
         phase = .gameOver
@@ -135,7 +145,9 @@ final class GameEngine: ObservableObject {
         }
 
         // Forward: score-scaled base drift + swing-energy boost, which bleeds off.
-        let forwardSpeed = GameConfig.forwardBaseSpeed(forScore: score) + hands.swingEnergy
+        // Reduce Motion trims top speed for comfort.
+        let speedScale: Float = reduceMotion ? 0.82 : 1.0
+        let forwardSpeed = (GameConfig.forwardBaseSpeed(forScore: score) + hands.swingEnergy) * speedScale
         hands.decaySwingEnergy(deltaTime: dt)
         let previousDistance = forwardDistance
         forwardDistance += forwardSpeed * dt
@@ -201,7 +213,9 @@ final class GameEngine: ObservableObject {
         let speedExcess = max(0, forwardSpeed - GameConfig.baseForwardSpeed) / speedRange
         let vertical = abs(verticalVelocity) / GameConfig.maxVerticalSpeed
         let raw = min(1, speedExcess * 0.7 + vertical * 0.5)
-        let opacity = raw * settings.vignetteAmount * 0.85
+        var opacity = raw * settings.vignetteAmount * 0.85
+        // Reduce Motion enforces a comfort floor regardless of the user's slider.
+        if reduceMotion { opacity = max(opacity, 0.55 * raw + 0.2) }
         vignette.components.set(OpacityComponent(opacity: opacity))
     }
 
