@@ -1,0 +1,24 @@
+# Xcode / Swift build artifacts
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# macOS
+.DS_Store
+
+# Managed by Xcode automatically
+GorillaFlap.xcodeproj/project.xcworkspace/xcuserdata/
+GorillaFlap.xcodeproj/xcuserdata/

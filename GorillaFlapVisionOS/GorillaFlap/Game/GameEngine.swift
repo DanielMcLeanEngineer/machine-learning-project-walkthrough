@@ -173,6 +173,7 @@ final class GameEngine: ObservableObject {
                 combo = 0
             }
             feedback.score()
+            feedback.pass(nearness: centerOffset)
             course.recycle(playerDistance: forwardDistance, score: score)
             course.refreshNextTarget(playerDistance: forwardDistance)
         case .crashed(let gapCenter):

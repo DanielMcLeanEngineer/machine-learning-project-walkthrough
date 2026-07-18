@@ -48,8 +48,10 @@ semantic events (`flap`, `score`, `crash`, `startRun`, `endRun`).
 small `AVAudioEngine` graph, so there are still **no audio asset files**:
 - *flap* — an airy upward whoosh that gets louder/brighter the harder you swing,
 - *score* — a bright two-note (perfect-fifth) chime,
+- *coin* — a quick high "ting",
+- *pass-by whoosh* — a swish as you clear a gap, louder the closer you skim an edge,
 - *crash* — a low thud with a noise burst,
-- *wind* — a soft, seamlessly looping ambience that runs only during a run.
+- *wind* — a soft, seamlessly looping ambience whose level tracks your speed.
 
 **Haptics** — important platform note: **Apple Vision Pro has no built-in haptic
 actuator the wearer can feel.** So haptics are implemented as a correct best-effort
@@ -74,6 +76,16 @@ The run gets harder the better you do (all curves live in `GameConfig`):
 The HUD's amber target band now reflects the *actual* size of the next gap, so it visibly
 shrinks as difficulty climbs. Distance travelled is shown on the HUD and the crash card.
 Best score is persisted locally and submitted to Game Center when beaten.
+
+## Accessibility & robustness
+
+- **Reduce Motion**: when the system setting is on, the comfort vignette is floored and
+  top speed is trimmed for a calmer ride.
+- **Auto-pause**: the run pauses if the app backgrounds or the immersive space is closed.
+- **VoiceOver**: the HUD height gauge and controls carry accessibility labels/values —
+  the gauge announces whether you're above, below, or aligned with the next gap.
+- **Local high scores**: a persisted top-5 table (with relative dates) in the menu,
+  independent of Game Center so scores work offline.
 
 ## Game Center
 

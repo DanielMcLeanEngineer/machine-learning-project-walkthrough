@@ -83,11 +83,14 @@ struct GameHUDView: View {
             Spacer()
             Button { adjustSensitivity(-0.1) } label: { Image(systemName: "minus") }
                 .buttonStyle(.borderless)
+                .accessibilityLabel("Decrease swing sensitivity")
             Text("\(Int(settings.swingSensitivity * 100))%")
                 .font(.caption2.monospacedDigit())
                 .frame(width: 42)
+                .accessibilityLabel("Swing sensitivity \(Int(settings.swingSensitivity * 100)) percent")
             Button { adjustSensitivity(0.1) } label: { Image(systemName: "plus") }
                 .buttonStyle(.borderless)
+                .accessibilityLabel("Increase swing sensitivity")
         }
     }
 
@@ -124,6 +127,18 @@ struct GameHUDView: View {
             }
         }
         .frame(height: 180)
+        .accessibilityElement()
+        .accessibilityLabel("Height gauge")
+        .accessibilityValue(gaugeAccessibilityValue)
+    }
+
+    private var gaugeAccessibilityValue: String {
+        let delta = engine.altitude - engine.targetAltitude
+        let direction: String
+        if abs(delta) < engine.targetGapHalf { direction = "aligned with the gap" }
+        else if delta < 0 { direction = "below the gap, flap up" }
+        else { direction = "above the gap, ease down" }
+        return "You are \(String(format: "%.1f", engine.altitude)) meters, \(direction)."
     }
 
     private var gameOverCard: some View {

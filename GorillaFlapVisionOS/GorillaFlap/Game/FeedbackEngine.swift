@@ -57,6 +57,12 @@ final class FeedbackEngine: ObservableObject {
         haptics.transient(intensity: 0.8, sharpness: 0.7)
     }
 
+    /// Pass-by swish; `nearness` 0 (dead center) … 1 (skimmed the edge).
+    func pass(nearness: Float) {
+        sound.playWhoosh(volume: 0.2 + 0.6 * max(0, min(1, nearness)))
+        if nearness > 0.8 { haptics.transient(intensity: 0.5, sharpness: 0.5) }
+    }
+
     func coin() {
         sound.playCoin()
         haptics.transient(intensity: 0.6, sharpness: 0.9)
@@ -82,12 +88,14 @@ private final class SoundSynth {
     private let flapNode = AVAudioPlayerNode()
     private let scoreNode = AVAudioPlayerNode()
     private let coinNode = AVAudioPlayerNode()
+    private let whooshNode = AVAudioPlayerNode()
     private let crashNode = AVAudioPlayerNode()
     private let windNode = AVAudioPlayerNode()
 
     private var flapBuffer: AVAudioPCMBuffer!
     private var scoreBuffer: AVAudioPCMBuffer!
     private var coinBuffer: AVAudioPCMBuffer!
+    private var whooshBuffer: AVAudioPCMBuffer!
     private var crashBuffer: AVAudioPCMBuffer!
     private var windBuffer: AVAudioPCMBuffer!
 
@@ -103,10 +111,11 @@ private final class SoundSynth {
         flapBuffer = makeFlap()
         scoreBuffer = makeScore()
         coinBuffer = makeCoin()
+        whooshBuffer = makeWhoosh()
         crashBuffer = makeCrash()
         windBuffer = makeWind()
 
-        for node in [flapNode, scoreNode, coinNode, crashNode, windNode] {
+        for node in [flapNode, scoreNode, coinNode, whooshNode, crashNode, windNode] {
             engine.attach(node)
             engine.connect(node, to: engine.mainMixerNode, format: format)
         }
@@ -131,6 +140,13 @@ private final class SoundSynth {
         guard engine.isRunning else { return }
         coinNode.scheduleBuffer(coinBuffer, at: nil, options: .interrupts, completionHandler: nil)
         coinNode.play()
+    }
+
+    func playWhoosh(volume: Float) {
+        guard engine.isRunning else { return }
+        whooshNode.volume = max(0, min(1, volume))
+        whooshNode.scheduleBuffer(whooshBuffer, at: nil, options: .interrupts, completionHandler: nil)
+        whooshNode.play()
     }
 
     func playCrash() {
@@ -201,6 +217,18 @@ private final class SoundSynth {
             let tone = sinf(2 * .pi * 1760 * t)
             let shimmer = 0.4 * sinf(2 * .pi * 2640 * t)
             return (tone + shimmer) * decay * 0.3
+        }
+    }
+
+    /// A short airy "pass-by" swish — band-passed noise with a symmetric swell, played
+    /// louder the closer you skim a wall edge.
+    private func makeWhoosh() -> AVAudioPCMBuffer {
+        var last: Float = 0
+        return makeBuffer(seconds: 0.24) { _, t, _ in
+            let env = sinf(.pi * min(1, t / 0.24))   // fade in and out
+            let noise = Float.random(in: -1...1)
+            last = last * 0.8 + noise * 0.2
+            return last * env * 0.6
         }
     }
 
