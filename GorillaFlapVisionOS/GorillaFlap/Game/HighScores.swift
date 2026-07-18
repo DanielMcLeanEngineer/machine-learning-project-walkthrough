@@ -34,6 +34,12 @@ final class HighScores: ObservableObject {
             .flatMap { entries.contains(where: { $0.score == score }) ? $0 + 1 : nil }
     }
 
+    /// Reset the table — used by unit tests to isolate cases.
+    func clearForTesting() {
+        entries = []
+        save()
+    }
+
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: key),
               let decoded = try? JSONDecoder().decode([Entry].self, from: data) else { return }

@@ -1,0 +1,50 @@
+name: GorillaFlap visionOS CI
+
+# Builds and unit-tests the visionOS game. Scoped to the project folder so it stays out
+# of the way of the unrelated machine-learning content in this repo.
+on:
+  push:
+    paths:
+      - 'GorillaFlapVisionOS/**'
+      - '.github/workflows/visionos-ci.yml'
+  pull_request:
+    paths:
+      - 'GorillaFlapVisionOS/**'
+      - '.github/workflows/visionos-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & test (visionOS Simulator)
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: GorillaFlapVisionOS
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show available SDKs
+        run: xcodebuild -showsdks || true
+
+      # Ensure the visionOS simulator runtime is present on the runner.
+      - name: Download visionOS platform
+        run: xcodebuild -downloadPlatform visionOS || true
+
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project GorillaFlap.xcodeproj \
+            -scheme GorillaFlap \
+            -destination 'platform=visionOS Simulator,name=Apple Vision Pro' \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: GorillaFlapVisionOS/TestResults.xcresult
+          if-no-files-found: ignore

@@ -77,6 +77,12 @@ enum GameConfig {
         return baseForwardSpeed + maxDifficultySpeedBonus * t
     }
 
+    /// Whether a player at `altitude` fits through a gap centred at `gapCenter` with the
+    /// given half-height, accounting for the player's radius. Pure and unit-tested.
+    static func fits(altitude: Float, gapCenter: Float, gapHalf: Float) -> Bool {
+        abs(altitude - gapCenter) <= gapHalf - playerRadius
+    }
+
     // MARK: Hand tracking
     /// A downward wrist speed above this (m/s) counts as a swing/flap.
     static let swingSpeedThreshold: Float = 0.9

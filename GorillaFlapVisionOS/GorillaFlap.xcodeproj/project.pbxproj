@@ -6,16 +6,35 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		BB0000000000000000000070 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000050 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000040;
+			remoteInfo = GorillaFlap;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		AA0000000000000000000001 /* GorillaFlap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GorillaFlap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB0000000000000000000001 /* GorillaFlapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GorillaFlapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AA0000000000000000000010 /* GorillaFlap */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GorillaFlap; sourceTree = "<group>"; };
+		BB0000000000000000000010 /* GorillaFlapTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GorillaFlapTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0000000000000000000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000020 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -29,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000010 /* GorillaFlap */,
+				BB0000000000000000000010 /* GorillaFlapTests */,
 				AA0000000000000000000031 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -37,6 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000001 /* GorillaFlap.app */,
+				BB0000000000000000000001 /* GorillaFlapTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,6 +85,27 @@
 			productReference = AA0000000000000000000001 /* GorillaFlap.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BB0000000000000000000040 /* GorillaFlapTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB0000000000000000000051 /* Build configuration list for PBXNativeTarget "GorillaFlapTests" */;
+			buildPhases = (
+				BB0000000000000000000021 /* Sources */,
+				BB0000000000000000000020 /* Frameworks */,
+				BB0000000000000000000022 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB0000000000000000000071 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BB0000000000000000000010 /* GorillaFlapTests */,
+			);
+			name = GorillaFlapTests;
+			productName = GorillaFlapTests;
+			productReference = BB0000000000000000000001 /* GorillaFlapTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -76,6 +118,10 @@
 				TargetAttributes = {
 					AA0000000000000000000040 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					BB0000000000000000000040 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = AA0000000000000000000040;
 					};
 				};
 			};
@@ -93,12 +139,20 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000040 /* GorillaFlap */,
+				BB0000000000000000000040 /* GorillaFlapTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA0000000000000000000022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB0000000000000000000022 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -115,7 +169,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BB0000000000000000000021 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB0000000000000000000071 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000040 /* GorillaFlap */;
+			targetProxy = BB0000000000000000000070 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA0000000000000000000060 /* Debug */ = {
@@ -208,6 +277,40 @@
 			};
 			name = Release;
 		};
+		BB0000000000000000000062 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danielmclean.gorillaflap.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GorillaFlap.app/GorillaFlap";
+			};
+			name = Debug;
+		};
+		BB0000000000000000000063 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.danielmclean.gorillaflap.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GorillaFlap.app/GorillaFlap";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -225,6 +328,15 @@
 			buildConfigurations = (
 				AA0000000000000000000060 /* Debug */,
 				AA0000000000000000000061 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB0000000000000000000051 /* Build configuration list for PBXNativeTarget "GorillaFlapTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000062 /* Debug */,
+				BB0000000000000000000063 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

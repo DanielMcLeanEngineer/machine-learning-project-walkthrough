@@ -147,6 +147,23 @@ Play Again buttons, so you never need the menu window mid-session. Defaults matc
 original hand-tuned feel; **Reset** restores them. These layer on top
 of `GameConfig`, which still holds the fixed design constants.
 
+## Tests & CI
+
+Unit tests (`GorillaFlapTests/`) cover the pure game logic — difficulty curves, the
+collision/`fits` predicate, settings→simulation mapping, and the high-score table. Run
+them from Xcode (⌘U) or:
+
+```
+xcodebuild test \
+  -project GorillaFlap.xcodeproj \
+  -scheme GorillaFlap \
+  -destination 'platform=visionOS Simulator,name=Apple Vision Pro'
+```
+
+A GitHub Actions workflow (`.github/workflows/visionos-ci.yml`, path-scoped to this
+folder) builds and runs those tests on a macOS runner for every change. The shared
+`GorillaFlap` scheme is checked in so both Xcode and CI pick up the test target.
+
 ## Build & run
 
 Requirements: **Xcode 16+**, **visionOS 2.0 SDK**.

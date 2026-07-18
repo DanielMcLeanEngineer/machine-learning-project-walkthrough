@@ -108,7 +108,7 @@ final class ObstacleCourse {
                 obstacle.scored = true
                 let fitsTolerance = obstacle.gapHalf - GameConfig.playerRadius
                 let offset = abs(altitude - obstacle.gapCenter)
-                if offset <= fitsTolerance {
+                if GameConfig.fits(altitude: altitude, gapCenter: obstacle.gapCenter, gapHalf: obstacle.gapHalf) {
                     result = .scored(centerOffset: min(1, offset / max(0.0001, fitsTolerance)))
                 } else {
                     return .crashed(gapCenter: obstacle.gapCenter)
