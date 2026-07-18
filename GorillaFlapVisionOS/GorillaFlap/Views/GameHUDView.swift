@@ -129,13 +129,14 @@ struct GameHUDView: View {
     private var gameOverCard: some View {
         VStack(spacing: 6) {
             Text("CRASH").font(.title3.weight(.heavy)).foregroundStyle(.red)
+            if engine.isNewBest {
+                Label("NEW BEST!", systemImage: "trophy.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.yellow)
+            }
             Text("Score \(engine.score) · \(Int(engine.distance)) m")
                 .font(.caption).foregroundStyle(.secondary)
             Text("Best \(engine.bestScore)").font(.caption).foregroundStyle(.secondary)
-            Text("Press Restart in the menu window")
-                .font(.caption2)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
         }
         .padding(.top, 4)
     }

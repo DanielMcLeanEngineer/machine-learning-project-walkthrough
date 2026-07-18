@@ -10,6 +10,7 @@ struct MainMenuView: View {
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @State private var immersiveOpen = false
+    @State private var showLeaderboard = false
 
     var body: some View {
         ScrollView {
@@ -73,6 +74,13 @@ struct MainMenuView: View {
                     .multilineTextAlignment(.center)
 
                 if leaderboard.isAuthenticated {
+                    Button {
+                        showLeaderboard = true
+                    } label: {
+                        Label("Leaderboard", systemImage: "list.number")
+                    }
+                    .buttonStyle(.bordered)
+
                     Label("Game Center connected", systemImage: "person.crop.circle.badge.checkmark")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -82,6 +90,10 @@ struct MainMenuView: View {
             .frame(maxWidth: .infinity)
         }
         .task { leaderboard.authenticate() }
+        .sheet(isPresented: $showLeaderboard) {
+            GameCenterDashboard { showLeaderboard = false }
+                .ignoresSafeArea()
+        }
     }
 
     private var instructions: some View {

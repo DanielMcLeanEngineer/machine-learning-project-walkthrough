@@ -18,6 +18,8 @@ final class GameEngine: ObservableObject {
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var score = 0
     @Published private(set) var bestScore = 0
+    /// True when the run that just ended set a new personal best.
+    @Published private(set) var isNewBest = false
     /// Current streak of clean (centered) passes — drives bonus points and HUD flair.
     @Published private(set) var combo = 0
     /// Meters travelled this run — a secondary stat shown on the HUD / game-over card.
@@ -67,6 +69,7 @@ final class GameEngine: ObservableObject {
     func startGame() {
         score = 0
         combo = 0
+        isNewBest = false
         distance = 0
         verticalVelocity = 0
         forwardDistance = 0
@@ -96,6 +99,7 @@ final class GameEngine: ObservableObject {
 
     func endGame() {
         if score > bestScore {
+            isNewBest = true
             bestScore = score
             UserDefaults.standard.set(bestScore, forKey: bestScoreKey)
             Task { await Leaderboard.shared.submit(score: bestScore) }
