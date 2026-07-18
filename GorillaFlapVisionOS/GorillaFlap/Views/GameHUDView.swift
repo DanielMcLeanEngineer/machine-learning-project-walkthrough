@@ -20,6 +20,15 @@ struct GameHUDView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { scorePulse = false }
                 }
 
+            if engine.phase == .countdown {
+                Text(engine.countdown > 0 ? "\(engine.countdown)" : "GO")
+                    .font(.system(size: 40, weight: .black, design: .rounded))
+                    .foregroundStyle(.yellow)
+                    .transition(.scale)
+                Text("Get set — swing to fly")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
             if engine.combo >= 2 {
                 Text("COMBO ×\(engine.combo)")
                     .font(.caption.weight(.bold))
@@ -69,6 +78,9 @@ struct GameHUDView: View {
                 Label("Play Again", systemImage: "arrow.counterclockwise").frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            sensitivityStepper
+
+        case .countdown:
             sensitivityStepper
 
         case .ready:

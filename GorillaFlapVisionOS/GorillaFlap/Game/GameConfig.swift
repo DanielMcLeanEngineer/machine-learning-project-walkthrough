@@ -90,6 +90,8 @@ enum GameConfig {
     static let swingCooldown: TimeInterval = 0.28
 
     // MARK: Comfort
+    /// Length of the "get set" countdown before a run's physics begins.
+    static let countdownSeconds: Float = 3.0
     /// Forward distance between the start line and the first obstacle.
     static let startRunway: Float = 6.0
     /// Player's starting altitude (roughly eye height of the easiest first gap).

@@ -22,7 +22,9 @@ around exactly those three priorities.
 - Clear a gap to score. Clip a wall and the run ends. Your best score is kept.
 
 A head-locked HUD shows your score and a vertical **height gauge**: a green dot (you)
-versus an amber band (the next gap's height), so reading altitude is instant.
+versus an amber band (the next gap's height), so reading altitude is instant. Each run
+opens with a short **3-2-1 countdown** so you can set your stance, and the fully
+immersive space is wrapped in a calm gradient **skydome** rather than a black void.
 
 ## Why it feels seamless (and comfortable)
 

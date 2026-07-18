@@ -6,8 +6,8 @@ import simd
 /// boxes and a few emissive accents. No imported meshes, textures, or USDZ files.
 enum AssetFactory {
 
-    // A small, friendly palette so the world reads clearly against the passthrough.
-    static let wallColor = SimpleMaterial(color: .init(white: 0.85, alpha: 1.0), roughness: 0.9, isMetallic: false)
+    // Unlit so the course reads consistently in full immersion without scene lighting.
+    static let wallColor = UnlitMaterial(color: .init(white: 0.82, alpha: 1.0))
     static let gapAccentColor = UnlitMaterial(color: .init(red: 0.20, green: 0.95, blue: 0.70, alpha: 1.0))
     static let nextGapAccentColor = UnlitMaterial(color: .init(red: 1.0, green: 0.78, blue: 0.20, alpha: 1.0))
     static let coinColor = UnlitMaterial(color: .init(red: 1.0, green: 0.85, blue: 0.25, alpha: 1.0))
@@ -73,7 +73,7 @@ enum AssetFactory {
     /// Tint an obstacle's walls — used to warm their color as difficulty climbs.
     static func setWallTint(_ obstacle: Entity, _ color: UIColor) {
         guard let p = obstacle.components[ObstacleParts.self] else { return }
-        let material = SimpleMaterial(color: color, roughness: 0.9, isMetallic: false)
+        let material = UnlitMaterial(color: color)
         (p.topWall as? ModelEntity)?.model?.materials = [material]
         (p.bottomWall as? ModelEntity)?.model?.materials = [material]
     }

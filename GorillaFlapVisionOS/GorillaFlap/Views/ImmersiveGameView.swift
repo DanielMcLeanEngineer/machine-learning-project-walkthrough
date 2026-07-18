@@ -12,6 +12,7 @@ struct ImmersiveGameView: View {
 
     var body: some View {
         RealityView { content, attachments in
+            content.add(await Skybox.make())
             content.add(engine.worldRoot)
             engine.setup(content: content)
 

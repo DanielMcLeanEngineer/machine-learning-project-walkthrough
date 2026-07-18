@@ -113,6 +113,13 @@ final class HandMotionTracker: ObservableObject {
         return pendingFlap
     }
 
+    /// Discard any banked input — used when a run actually begins after the countdown so
+    /// warm-up swings don't launch the player.
+    func flushInput() {
+        pendingFlap = 0
+        swingEnergy = 0
+    }
+
     /// Bleed off forward swing energy over time so you must keep swinging to keep pace.
     func decaySwingEnergy(deltaTime: Float) {
         swingEnergy = max(0, swingEnergy - GameConfig.swingEnergyDecay * deltaTime)

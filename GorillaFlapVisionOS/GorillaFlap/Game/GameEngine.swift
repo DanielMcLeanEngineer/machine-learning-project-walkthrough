@@ -14,7 +14,7 @@ import simd
 @MainActor
 final class GameEngine: ObservableObject {
 
-    enum Phase { case ready, playing, paused, gameOver }
+    enum Phase { case ready, countdown, playing, paused, gameOver }
 
     @Published private(set) var phase: Phase = .ready
     @Published private(set) var score = 0
@@ -30,6 +30,8 @@ final class GameEngine: ObservableObject {
     @Published private(set) var targetAltitude: Float = GameConfig.startAltitude
     /// Half-height of the next gap, so the HUD band reflects the live difficulty.
     @Published private(set) var targetGapHalf: Float = GameConfig.gapHalfHeight
+    /// Seconds remaining (rounded up) on the pre-run countdown, for the HUD.
+    @Published private(set) var countdown = 0
 
     private let bestScoreKey = "gf.bestScore"
 
@@ -46,6 +48,7 @@ final class GameEngine: ObservableObject {
     // Player state in course coordinates.
     private var verticalVelocity: Float = 0
     private var forwardDistance: Float = 0
+    private var countdownTimer: Float = 0
     /// Snapshot of the system Reduce Motion setting, refreshed at the start of each run.
     private var reduceMotion = false
 
@@ -83,8 +86,10 @@ final class GameEngine: ObservableObject {
         targetAltitude = course.nextGapCenter(playerDistance: forwardDistance) ?? GameConfig.startAltitude
         targetGapHalf = course.nextGapHalf(playerDistance: forwardDistance) ?? GameConfig.gapHalfHeight
         applyWorldTransform()
-        feedback.startRun()
-        phase = .playing
+        // Brief countdown so the player can set their stance before physics starts.
+        countdownTimer = GameConfig.countdownSeconds
+        countdown = Int(countdownTimer.rounded(.up))
+        phase = .countdown
     }
 
     /// Pause only if a run is active — used by lifecycle events.
@@ -122,7 +127,20 @@ final class GameEngine: ObservableObject {
     // MARK: - Frame step
 
     private func tick(deltaTime: Float) {
-        guard phase == .playing, deltaTime > 0 else { return }
+        guard deltaTime > 0 else { return }
+
+        if phase == .countdown {
+            countdownTimer -= Float(deltaTime)
+            countdown = max(0, Int(countdownTimer.rounded(.up)))
+            if countdownTimer <= 0 {
+                hands.flushInput()          // ignore warm-up swings
+                feedback.startRun()
+                phase = .playing
+            }
+            return
+        }
+
+        guard phase == .playing else { return }
         let dt = min(deltaTime, 1.0 / 30.0)   // clamp to avoid tunneling on hitches
 
         // Vertical: gravity + banked flap impulses, integrated and clamped.
