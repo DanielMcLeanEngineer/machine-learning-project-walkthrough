@@ -34,3 +34,10 @@ with Flappy Bird altitude control.
 - Honors system Reduce Motion (comfort-vignette floor, reduced top speed).
 - Auto-pauses when the scene backgrounds or the immersive space is dismissed.
 - Accessibility labels/values on HUD controls and the height gauge.
+
+### Production readiness
+- Layered (parallax) visionOS app icon.
+- Privacy manifest (`PrivacyInfo.xcprivacy`) declaring no tracking and the UserDefaults
+  required-reason API.
+- Unit test target, shared scheme, and a path-scoped GitHub Actions CI workflow.
+- MIT license, `.gitignore`, and this changelog.
